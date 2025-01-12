@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Préstamos - Credipay</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .calculator-container {
+            background: #ffffff;
+            padding: 20px 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .logo img {
+            width: 100px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        label {
+            font-size: 14px;
+            margin: 10px 0 5px;
+            display: block;
+            color: #555;
+        }
+
+        input[type="number"], select {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        input[disabled] {
+            background-color: #e9ecef;
+            cursor: not-allowed;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .modify-rate-button {
+            background-color: #ffc107;
+            color: #333;
+        }
+
+        .modify-rate-button:hover {
+            background-color: #e0a800;
+        }
+
+        .result, .payment-plan {
+            background: #f4f4f9;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        .result p, .payment-plan p {
+            margin: 10px 0;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .result span, .payment-plan span {
+            font-weight: bold;
+            color: #007BFF;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+            font-size: 12px;
+        }
+
+        th {
+            background-color: #007BFF;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator-container">
+        <div class="logo">
+            <img src="Daniel Gallego.png" alt="Credipay Logo">
+        </div>
+        <h1>Calculadora de Préstamos</h1>
+        <form id="loanForm">
+            <label for="amount">Monto Solicitado:</label>
+            <input type="number" id="amount" placeholder="Ingrese el monto" required>
+
+            <label for="rate">Interés Mensual (%):</label>
+            <input type="number" id="rate" value="15" disabled required>
+            <button type="button" class="modify-rate-button" onclick="enableRateInput()">Modificar Interés</button>
+
+            <label for="term">Plazo (en meses):</label>
+            <input type="number" id="term" placeholder="Ingrese el plazo (ej: 3)" required>
+
+            <label for="frequency">Frecuencia de Pago:</label>
+            <select id="frequency" required>
+                <option value="semanal">Semanal</option>
+                <option value="quincenal">Quincenal</option>
+                <option value="mensual">Mensual</option>
+            </select>
+
+            <button type="button" onclick="calculateLoan()">Calcular</button>
+            <button type="button" onclick="generatePaymentPlan()">Generar Plan de Pagos</button>
+        </form>
+
+        <div class="result" id="result" style="display: none;">
+            <p>Total de Cuotas (Semanas): <span id="totalWeeks"></span></p>
+            <p>Total a Pagar: <span id="totalPayment"></span></p>
+            <p>Cuota Semanal: <span id="weeklyPayment"></span></p>
+            <p>Cuota Quincenal: <span id="biweeklyPayment"></span></p>
+            <p>Cuota Mensual: <span id="monthlyPayment"></span></p>
+        </div>
+
+        <div class="payment-plan" id="paymentPlan" style="display: none;">
+            <h3>Plan de Pagos</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Fecha de Pago</th>
+                        <th>Saldo Total</th>
+                        <th>Cuota</th>
+                        <th>Saldo Final</th>
+                    </tr>
+                </thead>
+                <tbody id="paymentTable"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        function enableRateInput() {
+            const rateInput = document.getElementById("rate");
+            rateInput.disabled = false;
+            rateInput.focus();
+        }
+
+        function calculateLoan() {
+            const amount = parseFloat(document.getElementById("amount").value);
+            const rate = parseFloat(document.getElementById("rate").value);
+            const term = parseInt(document.getElementById("term").value);
+
+            if (isNaN(amount) || isNaN(rate) || isNaN(term) || amount <= 0 || rate <= 0 || term <= 0) {
+                alert("Por favor, ingrese valores válidos.");
+                return;
+            }
+
+            const totalWeeks = term * 4;
+            const totalInterestPercent = rate * term;
+            const totalInterest = (amount * totalInterestPercent) / 100;
+            const totalPayment = amount + totalInterest;
+
+            const weeklyPayment = totalPayment / totalWeeks;
+            const biweeklyPayment = weeklyPayment * 2;
+            const monthlyPayment = weeklyPayment * 4;
+
+            document.getElementById("totalWeeks").textContent = totalWeeks;
+            document.getElementById("totalPayment").textContent = `$${totalPayment.toFixed(2)}`;
+            document.getElementById("weeklyPayment").textContent = `$${weeklyPayment.toFixed(2)}`;
+            document.getElementById("biweeklyPayment").textContent = `$${biweeklyPayment.toFixed(2)}`;
+            document.getElementById("monthlyPayment").textContent = `$${monthlyPayment.toFixed(2)}`;
+            document.getElementById("result").style.display = "block";
+        }
+
+        function generatePaymentPlan() {
+            const amount = parseFloat(document.getElementById("amount").value);
+            const rate = parseFloat(document.getElementById("rate").value);
+            const term = parseInt(document.getElementById("term").value);
+            const frequency = document.getElementById("frequency").value;
+
+            const totalInterestPercent = rate * term;
+            const totalInterest = (amount * totalInterestPercent) / 100;
+            const totalPayment = amount + totalInterest;
+
+            let paymentCount;
+            let paymentInterval;
+
+            switch (frequency) {
+                case "semanal":
+                    paymentCount = term * 4;
+                    paymentInterval = 7; // 7 días entre pagos
+                    break;
+                case "quincenal":
+                    paymentCount = term * 2;
+                    paymentInterval = 14; // 14 días entre pagos
+                    break;
+                case "mensual":
+                    paymentCount = term;
+                    paymentInterval = 30; // 30 días entre pagos
+                    break;
+            }
+
+            const paymentAmount = totalPayment / paymentCount;
+            const tbody = document.getElementById("paymentTable");
+            tbody.innerHTML = "";
+
+            let remainingBalance = totalPayment;
+            let currentDate = new Date();
+
+            for (let i = 1; i <= paymentCount; i++) {
+                const saldoFinal = remainingBalance - paymentAmount;
+                currentDate.setDate(currentDate.getDate() + paymentInterval);
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${i}</td>
+                        <td>${currentDate.toISOString().split("T")[0]}</td>
+                        <td>$${remainingBalance.toFixed(2)}</td>
+                        <td>$${paymentAmount.toFixed(2)}</td>
+                        <td>$${saldoFinal.toFixed(2)}</td>
+                    </tr>
+                `;
+
+                remainingBalance = saldoFinal;
+            }
+
+            document.getElementById("paymentPlan").style.display = "block";
+        }
+    </script>
+</body>
+</html>
