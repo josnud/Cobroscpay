@@ -130,7 +130,7 @@
         <div class="logo">
             <img src="Daniel Gallego.png" alt="Credipay Logo">
         </div>
-        <h1>Calcula tu prestamo con Credipay</h1>
+        <h1>Calcula tu préstamo con Credipay</h1>
         <form id="loanForm">
             <label for="amount">Monto Solicitado C$:</label>
             <input type="number" id="amount" placeholder="Ingrese el monto" required>
@@ -188,14 +188,14 @@
         function calculateLoan() {
             const amount = parseFloat(document.getElementById("amount").value);
             const rate = parseFloat(document.getElementById("rate").value);
-            const term = parseInt(document.getElementById("term").value);
+            const term = parseFloat(document.getElementById("term").value);
 
             if (isNaN(amount) || isNaN(rate) || isNaN(term) || amount <= 0 || rate <= 0 || term <= 0) {
                 alert("Por favor, ingrese valores válidos.");
                 return;
             }
 
-            const totalWeeks = term * 4;
+            const totalWeeks = Math.ceil(term * 4);
             const totalInterestPercent = rate * term;
             const totalInterest = (amount * totalInterestPercent) / 100;
             const totalPayment = amount + totalInterest;
@@ -215,8 +215,13 @@
         function generatePaymentPlan() {
             const amount = parseFloat(document.getElementById("amount").value);
             const rate = parseFloat(document.getElementById("rate").value);
-            const term = parseInt(document.getElementById("term").value);
+            const term = parseFloat(document.getElementById("term").value);
             const frequency = document.getElementById("frequency").value;
+
+            if (isNaN(amount) || isNaN(rate) || isNaN(term) || amount <= 0 || rate <= 0 || term <= 0) {
+                alert("Por favor, ingrese valores válidos.");
+                return;
+            }
 
             const totalInterestPercent = rate * term;
             const totalInterest = (amount * totalInterestPercent) / 100;
@@ -227,16 +232,16 @@
 
             switch (frequency) {
                 case "semanal":
-                    paymentCount = term * 4;
-                    paymentInterval = 7; // 7 días entre pagos
+                    paymentCount = Math.ceil(term * 4);
+                    paymentInterval = 7;
                     break;
                 case "quincenal":
-                    paymentCount = term * 2;
-                    paymentInterval = 14; // 14 días entre pagos
+                    paymentCount = Math.ceil(term * 2);
+                    paymentInterval = 14;
                     break;
                 case "mensual":
-                    paymentCount = term;
-                    paymentInterval = 30; // 30 días entre pagos
+                    paymentCount = Math.ceil(term);
+                    paymentInterval = 30;
                     break;
             }
 
