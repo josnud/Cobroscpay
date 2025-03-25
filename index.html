@@ -36,17 +36,6 @@
             font-weight: bold;
         }
 
-        .window-title button {
-            background: silver;
-            border: 1px solid black;
-            width: 16px;
-            height: 16px;
-            text-align: center;
-            line-height: 14px;
-            font-size: 12px;
-            cursor: pointer;
-        }
-
         .content {
             padding: 10px;
         }
@@ -75,10 +64,6 @@
             border: 2px solid black;
             box-shadow: inset -2px -2px gray, inset 2px 2px white;
             cursor: pointer;
-        }
-
-        button:active {
-            box-shadow: inset 2px 2px gray, inset -2px -2px white;
         }
 
         .result, .payment-plan {
@@ -167,33 +152,44 @@
             document.getElementById("rate").disabled = false;
         }
 
+        function calculateLoan() {
+            const amount = parseFloat(document.getElementById("amount").value);
+            const rate = parseFloat(document.getElementById("rate").value);
+            const term = parseFloat(document.getElementById("term").value);
+            if (isNaN(amount) || isNaN(rate) || isNaN(term) || amount <= 0 || rate <= 0 || term <= 0) {
+                alert("Ingrese valores válidos.");
+                return;
+            }
+
+            const totalInterest = (amount * rate * term) / 100;
+            const totalPayment = amount + totalInterest;
+            document.getElementById("totalPayment").textContent = `C$${totalPayment.toFixed(2)}`;
+            document.getElementById("weeklyPayment").textContent = `C$${(totalPayment / (term * 4)).toFixed(2)}`;
+            document.getElementById("biweeklyPayment").textContent = `C$${(totalPayment / (term * 2)).toFixed(2)}`;
+            document.getElementById("monthlyPayment").textContent = `C$${(totalPayment / term).toFixed(2)}`;
+            document.getElementById("result").style.display = "block";
+        }
+
         function generatePaymentPlan() {
             const tbody = document.getElementById("paymentTable");
             tbody.innerHTML = "";
             document.getElementById("paymentPlan").style.display = "block";
         }
 
-        async function downloadPDF() {
+        function downloadPDF() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
-
-            doc.setFont("courier");
-            doc.setFontSize(12);
             doc.text("Plan de Pagos - Credipay", 10, 10);
             doc.text("Monto: C$" + document.getElementById("amount").value, 10, 20);
-            doc.text("Interés Mensual: " + document.getElementById("rate").value + "%", 10, 30);
+            doc.text("Interés: " + document.getElementById("rate").value + "%", 10, 30);
             doc.text("Plazo: " + document.getElementById("term").value + " meses", 10, 40);
-            doc.text("Frecuencia: " + document.getElementById("frequency").value, 10, 50);
 
-            let y = 60;
-            doc.text("Cuotas", 10, y);
+            let y = 50;
+            doc.text("Cuotas:", 10, y);
             y += 10;
-
-            const table = document.querySelectorAll("#paymentTable tr");
-            table.forEach(row => {
-                const columns = row.querySelectorAll("td");
+            document.querySelectorAll("#paymentTable tr").forEach(row => {
                 let textRow = "";
-                columns.forEach(col => textRow += col.innerText + "   ");
+                row.querySelectorAll("td").forEach(col => textRow += col.innerText + "  ");
                 doc.text(textRow, 10, y);
                 y += 10;
             });
