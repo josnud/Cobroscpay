@@ -160,12 +160,14 @@
   </div>
   
   <script>
+    // Permite modificar el interés
     function enableRateInput() {
       const rateInput = document.getElementById("rate");
       rateInput.disabled = false;
       rateInput.focus();
     }
     
+    // Calcula los valores del préstamo y muestra el resultado
     function calculateLoan() {
       const amount = parseFloat(document.getElementById("amount").value);
       const rate = parseFloat(document.getElementById("rate").value);
@@ -194,6 +196,7 @@
       document.getElementById("result").style.display = "block";
     }
     
+    // Genera el plan de pagos usando la lógica original y actualiza la tabla
     function generatePaymentPlan() {
       const amount = parseFloat(document.getElementById("amount").value);
       const rate = parseFloat(document.getElementById("rate").value);
@@ -254,6 +257,7 @@
       document.getElementById("paymentPlan").style.display = "block";
     }
     
+    // Genera el PDF del plan de pagos usando jsPDF
     function downloadPDF() {
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
