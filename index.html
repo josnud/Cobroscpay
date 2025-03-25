@@ -6,6 +6,8 @@
   <title>Calculadora de Préstamos - Credipay</title>
   <!-- jsPDF para generar PDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <!-- html2canvas para capturar el elemento como imagen -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
     /* Fuente Windows 98 */
     @font-face {
@@ -167,7 +169,7 @@
       rateInput.focus();
     }
     
-    // Calcula los valores del préstamo y muestra el resultado
+    // Calcula el préstamo y muestra los resultados
     function calculateLoan() {
       const amount = parseFloat(document.getElementById("amount").value);
       const rate = parseFloat(document.getElementById("rate").value);
@@ -196,7 +198,7 @@
       document.getElementById("result").style.display = "block";
     }
     
-    // Genera el plan de pagos usando la lógica original y actualiza la tabla
+    // Genera el plan de pagos y actualiza la tabla usando la lógica original
     function generatePaymentPlan() {
       const amount = parseFloat(document.getElementById("amount").value);
       const rate = parseFloat(document.getElementById("rate").value);
@@ -257,34 +259,24 @@
       document.getElementById("paymentPlan").style.display = "block";
     }
     
-    // Genera el PDF del plan de pagos usando jsPDF
+    // Genera el PDF incluyendo una imagen del plan de pagos usando html2canvas
     function downloadPDF() {
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
-      
-      doc.setFont("courier");
-      doc.setFontSize(12);
-      doc.text("Plan de Pagos - Credipay", 10, 10);
-      doc.text("Monto Solicitado: C$" + document.getElementById("amount").value, 10, 20);
-      doc.text("Interés Mensual: " + document.getElementById("rate").value + "%", 10, 30);
-      doc.text("Plazo (meses): " + document.getElementById("term").value, 10, 40);
-      doc.text("Frecuencia: " + document.getElementById("frequency").value, 10, 50);
-      
-      let y = 60;
-      doc.text("Plan de Pagos:", 10, y);
-      y += 10;
-      
-      const rows = document.querySelectorAll("#paymentTable tr");
-      rows.forEach(row => {
-        let textRow = "";
-        row.querySelectorAll("td").forEach(col => {
-          textRow += col.innerText + "  ";
-        });
-        doc.text(textRow, 10, y);
-        y += 10;
+      // Capturamos el elemento del plan de pagos
+      html2canvas(document.getElementById("paymentPlan")).then(canvas => {
+        const imgData = canvas.toDataURL("image/png");
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = pdf.internal.pageSize.getHeight();
+        
+        // Calculamos dimensiones para que la imagen ocupe la página
+        const imgProps = pdf.getImageProperties(imgData);
+        const imgWidth = pdfWidth;
+        const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
+        
+        pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+        pdf.save("Plan_de_Pagos.pdf");
       });
-      
-      doc.save("Plan_de_Pagos.pdf");
     }
     
     function closeWindow() {
