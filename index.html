@@ -5,11 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calculadora de Préstamos - Credipay</title>
     <style>
-        @font-face {
-            font-family: "MS Sans Serif";
-            src: url("https://fonts.cdnfonts.com/s/74741/MS%20Sans%20Serif.woff") format("woff");
-        }
-
         body {
             font-family: "MS Sans Serif", sans-serif;
             background: teal;
@@ -21,7 +16,7 @@
         }
 
         .window {
-            width: 380px;
+            width: 400px;
             background: silver;
             border: 2px solid black;
             box-shadow: inset -2px -2px gray, inset 2px 2px white;
@@ -194,17 +189,48 @@
         }
 
         function generatePaymentPlan() {
+            const amount = parseFloat(document.getElementById("amount").value);
+            const rate = parseFloat(document.getElementById("rate").value);
+            const term = parseFloat(document.getElementById("term").value);
+            const frequency = document.getElementById("frequency").value;
+
+            const totalInterest = (amount * rate * term) / 100;
+            const totalPayment = amount + totalInterest;
+
+            let payments;
+            let interval;
+
+            switch (frequency) {
+                case "semanal":
+                    payments = term * 4;
+                    interval = 7;
+                    break;
+                case "quincenal":
+                    payments = term * 2;
+                    interval = 14;
+                    break;
+                case "mensual":
+                    payments = term;
+                    interval = 30;
+                    break;
+            }
+
+            const paymentAmount = totalPayment / payments;
+            let balance = totalPayment;
+            let currentDate = new Date();
             const tbody = document.getElementById("paymentTable");
             tbody.innerHTML = "";
-            
-            for (let i = 1; i <= 10; i++) {
+
+            for (let i = 1; i <= payments; i++) {
+                balance -= paymentAmount;
+                currentDate.setDate(currentDate.getDate() + interval);
                 tbody.innerHTML += `
                     <tr>
                         <td>${i}</td>
-                        <td>2025-04-${i + 10}</td>
-                        <td>C$ 1000.00</td>
-                        <td>C$ 100.00</td>
-                        <td>C$ 900.00</td>
+                        <td>${currentDate.toISOString().split("T")[0]}</td>
+                        <td>C$ ${balance.toFixed(2)}</td>
+                        <td>C$ ${paymentAmount.toFixed(2)}</td>
+                        <td>C$ ${balance.toFixed(2)}</td>
                     </tr>
                 `;
             }
