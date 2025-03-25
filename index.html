@@ -1,206 +1,291 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de Préstamos - Credipay</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <style>
-        body {
-            font-family: "MS Sans Serif", sans-serif;
-            background: teal;
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-
-        .window {
-            width: 400px;
-            background: silver;
-            border: 2px solid black;
-            box-shadow: inset -2px -2px gray, inset 2px 2px white;
-            padding: 5px;
-            position: relative;
-        }
-
-        .window-title {
-            background: navy;
-            color: white;
-            padding: 3px;
-            font-size: 14px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-weight: bold;
-        }
-
-        .content {
-            padding: 10px;
-        }
-
-        label {
-            display: block;
-            margin-top: 8px;
-            font-size: 12px;
-        }
-
-        input, select {
-            width: 100%;
-            padding: 4px;
-            font-size: 12px;
-            border: 2px solid black;
-            background: white;
-            box-shadow: inset -2px -2px gray, inset 2px 2px white;
-        }
-
-        button {
-            margin-top: 10px;
-            width: 100%;
-            padding: 5px;
-            font-size: 12px;
-            background: silver;
-            border: 2px solid black;
-            box-shadow: inset -2px -2px gray, inset 2px 2px white;
-            cursor: pointer;
-        }
-
-        .result, .payment-plan {
-            margin-top: 10px;
-            background: white;
-            padding: 5px;
-            border: 2px solid black;
-            box-shadow: inset -2px -2px gray, inset 2px 2px white;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-
-        th, td {
-            border: 1px solid black;
-            padding: 5px;
-            font-size: 12px;
-            text-align: center;
-        }
-
-        th {
-            background: gray;
-            color: white;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculadora de Préstamos - Credipay</title>
+  <!-- jsPDF para generar PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    /* Fuente Windows 98 */
+    @font-face {
+      font-family: "MS Sans Serif";
+      src: url("https://fonts.cdnfonts.com/s/74741/MS%20Sans%20Serif.woff") format("woff");
+    }
+    body {
+      font-family: "MS Sans Serif", sans-serif;
+      background: teal;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .window {
+      width: 400px;
+      background: silver;
+      border: 2px solid black;
+      box-shadow: inset -2px -2px gray, inset 2px 2px white;
+      padding: 10px;
+      position: relative;
+    }
+    .window-title {
+      background: navy;
+      color: white;
+      padding: 3px;
+      font-size: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: bold;
+    }
+    .window-title button {
+      background: silver;
+      border: 1px solid black;
+      width: 16px;
+      height: 16px;
+      text-align: center;
+      line-height: 14px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .content {
+      padding: 10px;
+    }
+    label {
+      display: block;
+      margin-top: 8px;
+      font-size: 12px;
+    }
+    input, select {
+      width: 100%;
+      padding: 4px;
+      font-size: 12px;
+      border: 2px solid black;
+      background: white;
+      box-shadow: inset -2px -2px gray, inset 2px 2px white;
+    }
+    button {
+      margin-top: 10px;
+      width: 100%;
+      padding: 5px;
+      font-size: 12px;
+      background: silver;
+      border: 2px solid black;
+      box-shadow: inset -2px -2px gray, inset 2px 2px white;
+      cursor: pointer;
+    }
+    button:active {
+      box-shadow: inset 2px 2px gray, inset -2px -2px white;
+    }
+    .result, .payment-plan {
+      margin-top: 10px;
+      background: white;
+      padding: 5px;
+      border: 2px solid black;
+      box-shadow: inset -2px -2px gray, inset 2px 2px white;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid black;
+      padding: 5px;
+      font-size: 12px;
+      text-align: center;
+    }
+    th {
+      background: gray;
+      color: white;
+    }
+  </style>
 </head>
 <body>
-
-    <div class="window">
-        <div class="window-title">
-            Calculadora de Préstamos
-            <button onclick="closeWindow()">X</button>
-        </div>
-        <div class="content">
-            <label for="amount">Monto Solicitado C$:</label>
-            <input type="number" id="amount" placeholder="Ingrese el monto">
-
-            <label for="rate">Interés Mensual (%):</label>
-            <input type="number" id="rate" value="15" disabled>
-            <button onclick="enableRateInput()">Modificar Interés</button>
-
-            <label for="term">Plazo (en meses):</label>
-            <input type="number" id="term" placeholder="Ingrese el plazo (ej: 3)">
-
-            <label for="frequency">Frecuencia de Pago:</label>
-            <select id="frequency">
-                <option value="semanal">Semanal</option>
-                <option value="quincenal">Quincenal</option>
-                <option value="mensual">Mensual</option>
-            </select>
-
-            <button onclick="calculateLoan()">Calcular</button>
-            <button onclick="generatePaymentPlan()">Generar Plan de Pagos</button>
-            
-            <div class="result" id="result" style="display: none;">
-                <p>Total a Pagar: <span id="totalPayment"></span></p>
-                <p>Cuota Semanal: <span id="weeklyPayment"></span></p>
-                <p>Cuota Quincenal: <span id="biweeklyPayment"></span></p>
-                <p>Cuota Mensual: <span id="monthlyPayment"></span></p>
-            </div>
-
-            <div class="payment-plan" id="paymentPlan" style="display: none;">
-                <h3>Plan de Pagos</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Fecha de Pago</th>
-                            <th>Saldo Total</th>
-                            <th>Cuota</th>
-                            <th>Saldo Final</th>
-                        </tr>
-                    </thead>
-                    <tbody id="paymentTable"></tbody>
-                </table>
-                <button onclick="downloadPDF()">Descargar PDF</button>
-            </div>
-        </div>
+  <div class="window">
+    <div class="window-title">
+      Calculadora de Préstamos
+      <button onclick="closeWindow()">X</button>
     </div>
-
-    <script>
-        function enableRateInput() {
-            document.getElementById("rate").disabled = false;
-        }
-
-        function calculateLoan() {
-            const amount = parseFloat(document.getElementById("amount").value);
-            const rate = parseFloat(document.getElementById("rate").value);
-            const term = parseFloat(document.getElementById("term").value);
-            if (isNaN(amount) || isNaN(rate) || isNaN(term) || amount <= 0 || rate <= 0 || term <= 0) {
-                alert("Ingrese valores válidos.");
-                return;
-            }
-
-            const totalInterest = (amount * rate * term) / 100;
-            const totalPayment = amount + totalInterest;
-            document.getElementById("totalPayment").textContent = `C$${totalPayment.toFixed(2)}`;
-            document.getElementById("weeklyPayment").textContent = `C$${(totalPayment / (term * 4)).toFixed(2)}`;
-            document.getElementById("biweeklyPayment").textContent = `C$${(totalPayment / (term * 2)).toFixed(2)}`;
-            document.getElementById("monthlyPayment").textContent = `C$${(totalPayment / term).toFixed(2)}`;
-            document.getElementById("result").style.display = "block";
-        }
-
-        function generatePaymentPlan() {
-            const tbody = document.getElementById("paymentTable");
-            tbody.innerHTML = "";
-            document.getElementById("paymentPlan").style.display = "block";
-        }
-
-        function downloadPDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            doc.text("Plan de Pagos - Credipay", 10, 10);
-            doc.text("Monto: C$" + document.getElementById("amount").value, 10, 20);
-            doc.text("Interés: " + document.getElementById("rate").value + "%", 10, 30);
-            doc.text("Plazo: " + document.getElementById("term").value + " meses", 10, 40);
-
-            let y = 50;
-            doc.text("Cuotas:", 10, y);
-            y += 10;
-            document.querySelectorAll("#paymentTable tr").forEach(row => {
-                let textRow = "";
-                row.querySelectorAll("td").forEach(col => textRow += col.innerText + "  ");
-                doc.text(textRow, 10, y);
-                y += 10;
-            });
-
-            doc.save("Plan_de_Pagos.pdf");
-        }
-
-        function closeWindow() {
-            document.querySelector(".window").style.display = "none";
-        }
-    </script>
-
+    <div class="content">
+      <form id="loanForm">
+        <label for="amount">Monto Solicitado C$:</label>
+        <input type="number" id="amount" placeholder="Ingrese el monto" required>
+        
+        <label for="rate">Interés Mensual (%):</label>
+        <input type="number" id="rate" value="15" disabled required>
+        <button type="button" onclick="enableRateInput()">Modificar Interés</button>
+        
+        <label for="term">Plazo (en meses):</label>
+        <input type="number" id="term" placeholder="Ingrese el plazo (ej: 3)" required>
+        
+        <label for="frequency">Frecuencia de Pago:</label>
+        <select id="frequency" required>
+          <option value="semanal">Semanal</option>
+          <option value="quincenal">Quincenal</option>
+          <option value="mensual">Mensual</option>
+        </select>
+        
+        <button type="button" onclick="calculateLoan()">Calcular</button>
+        <button type="button" onclick="generatePaymentPlan()">Generar Plan de Pagos</button>
+      </form>
+      
+      <div class="result" id="result" style="display: none;">
+        <p>Total de Cuotas (Semanas): <span id="totalWeeks"></span></p>
+        <p>Total a Pagar: <span id="totalPayment"></span></p>
+        <p>Cuota Semanal: <span id="weeklyPayment"></span></p>
+        <p>Cuota Quincenal: <span id="biweeklyPayment"></span></p>
+        <p>Cuota Mensual: <span id="monthlyPayment"></span></p>
+      </div>
+      
+      <div class="payment-plan" id="paymentPlan" style="display: none;">
+        <h3>Plan de Pagos</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Fecha de Pago</th>
+              <th>Saldo Total</th>
+              <th>Cuota</th>
+              <th>Saldo Final</th>
+            </tr>
+          </thead>
+          <tbody id="paymentTable"></tbody>
+        </table>
+        <button type="button" onclick="downloadPDF()">Descargar PDF</button>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    function enableRateInput() {
+      const rateInput = document.getElementById("rate");
+      rateInput.disabled = false;
+      rateInput.focus();
+    }
+    
+    function calculateLoan() {
+      const amount = parseFloat(document.getElementById("amount").value);
+      const rate = parseFloat(document.getElementById("rate").value);
+      const term = parseFloat(document.getElementById("term").value);
+      
+      if (isNaN(amount) || isNaN(rate) || isNaN(term) || amount <= 0 || rate <= 0 || term <= 0) {
+        alert("Por favor, ingrese valores válidos.");
+        return;
+      }
+      
+      const totalWeeks = Math.ceil(term * 4);
+      const totalInterestPercent = rate * term;
+      const totalInterest = (amount * totalInterestPercent) / 100;
+      const totalPayment = amount + totalInterest;
+      
+      const weeklyPayment = totalPayment / totalWeeks;
+      const biweeklyPayment = weeklyPayment * 2;
+      const monthlyPayment = weeklyPayment * 4;
+      
+      document.getElementById("totalWeeks").textContent = totalWeeks;
+      document.getElementById("totalPayment").textContent = `$${totalPayment.toFixed(2)}`;
+      document.getElementById("weeklyPayment").textContent = `$${weeklyPayment.toFixed(2)}`;
+      document.getElementById("biweeklyPayment").textContent = `$${biweeklyPayment.toFixed(2)}`;
+      document.getElementById("monthlyPayment").textContent = `$${monthlyPayment.toFixed(2)}`;
+      
+      document.getElementById("result").style.display = "block";
+    }
+    
+    function generatePaymentPlan() {
+      const amount = parseFloat(document.getElementById("amount").value);
+      const rate = parseFloat(document.getElementById("rate").value);
+      const term = parseFloat(document.getElementById("term").value);
+      const frequency = document.getElementById("frequency").value;
+      
+      if (isNaN(amount) || isNaN(rate) || isNaN(term) || amount <= 0 || rate <= 0 || term <= 0) {
+        alert("Por favor, ingrese valores válidos.");
+        return;
+      }
+      
+      const totalInterestPercent = rate * term;
+      const totalInterest = (amount * totalInterestPercent) / 100;
+      const totalPayment = amount + totalInterest;
+      
+      let paymentCount;
+      let paymentInterval;
+      
+      switch (frequency) {
+        case "semanal":
+          paymentCount = Math.ceil(term * 4);
+          paymentInterval = 7;
+          break;
+        case "quincenal":
+          paymentCount = Math.ceil(term * 2);
+          paymentInterval = 14;
+          break;
+        case "mensual":
+          paymentCount = Math.ceil(term);
+          paymentInterval = 30;
+          break;
+      }
+      
+      const paymentAmount = totalPayment / paymentCount;
+      const tbody = document.getElementById("paymentTable");
+      tbody.innerHTML = "";
+      
+      let remainingBalance = totalPayment;
+      let currentDate = new Date();
+      
+      for (let i = 1; i <= paymentCount; i++) {
+        const saldoFinal = remainingBalance - paymentAmount;
+        currentDate.setDate(currentDate.getDate() + paymentInterval);
+        
+        tbody.innerHTML += `
+          <tr>
+            <td>${i}</td>
+            <td>${currentDate.toISOString().split("T")[0]}</td>
+            <td>$${remainingBalance.toFixed(2)}</td>
+            <td>$${paymentAmount.toFixed(2)}</td>
+            <td>$${saldoFinal.toFixed(2)}</td>
+          </tr>
+        `;
+        
+        remainingBalance = saldoFinal;
+      }
+      
+      document.getElementById("paymentPlan").style.display = "block";
+    }
+    
+    function downloadPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      
+      doc.setFont("courier");
+      doc.setFontSize(12);
+      doc.text("Plan de Pagos - Credipay", 10, 10);
+      doc.text("Monto Solicitado: C$" + document.getElementById("amount").value, 10, 20);
+      doc.text("Interés Mensual: " + document.getElementById("rate").value + "%", 10, 30);
+      doc.text("Plazo (meses): " + document.getElementById("term").value, 10, 40);
+      doc.text("Frecuencia: " + document.getElementById("frequency").value, 10, 50);
+      
+      let y = 60;
+      doc.text("Plan de Pagos:", 10, y);
+      y += 10;
+      
+      const rows = document.querySelectorAll("#paymentTable tr");
+      rows.forEach(row => {
+        let textRow = "";
+        row.querySelectorAll("td").forEach(col => {
+          textRow += col.innerText + "  ";
+        });
+        doc.text(textRow, 10, y);
+        y += 10;
+      });
+      
+      doc.save("Plan_de_Pagos.pdf");
+    }
+    
+    function closeWindow() {
+      document.querySelector(".window").style.display = "none";
+    }
+  </script>
 </body>
 </html>
