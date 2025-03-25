@@ -9,91 +9,84 @@
   <!-- html2canvas para capturar el elemento como imagen -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
+    /* Estilo Windows 98 */
+    @font-face {
+      font-family: "MS Sans Serif";
+      src: url("https://fonts.cdnfonts.com/s/74741/MS%20Sans%20Serif.woff") format("woff");
+    }
     body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f4f9;
+      font-family: "MS Sans Serif", sans-serif;
+      background: teal;
       margin: 0;
-      padding: 0;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
     }
-    .calculator-container {
-      background: #ffffff;
-      padding: 20px 30px;
-      border-radius: 10px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      max-width: 400px;
-      width: 100%;
+    .window {
+      width: 400px;
+      background: silver;
+      border: 2px solid black;
+      box-shadow: inset -2px -2px gray, inset 2px 2px white;
+      padding: 10px;
+      position: relative;
     }
-    .logo {
+    .window-title {
+      background: navy;
+      color: white;
+      padding: 3px;
+      font-size: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: bold;
+    }
+    .window-title button {
+      background: silver;
+      border: 1px solid black;
+      width: 16px;
+      height: 16px;
       text-align: center;
-      margin-bottom: 20px;
+      line-height: 14px;
+      font-size: 12px;
+      cursor: pointer;
     }
-    .logo img {
-      width: 100px;
-    }
-    h1 {
-      text-align: center;
-      color: #333;
+    .content {
+      padding: 10px;
     }
     label {
-      font-size: 14px;
-      margin: 10px 0 5px;
       display: block;
-      color: #555;
+      margin-top: 8px;
+      font-size: 12px;
     }
-    input[type="number"], select {
+    input, select {
       width: 100%;
-      padding: 10px;
-      margin: 5px 0 10px;
-      border: 1px solid #ddd;
-      border-radius: 5px;
-      font-size: 14px;
-    }
-    input[disabled] {
-      background-color: #e9ecef;
-      cursor: not-allowed;
+      padding: 4px;
+      font-size: 12px;
+      border: 2px solid black;
+      background: white;
+      box-shadow: inset -2px -2px gray, inset 2px 2px white;
+      margin-bottom: 8px;
     }
     button {
+      margin-top: 10px;
       width: 100%;
-      padding: 10px;
-      margin: 10px 0;
-      background-color: #007BFF;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      font-size: 14px;
-      font-weight: bold;
+      padding: 5px;
+      font-size: 12px;
+      background: silver;
+      border: 2px solid black;
+      box-shadow: inset -2px -2px gray, inset 2px 2px white;
       cursor: pointer;
-      transition: all 0.3s ease;
     }
-    button:hover {
-      background-color: #0056b3;
-    }
-    .modify-rate-button {
-      background-color: #ffc107;
-      color: #333;
-    }
-    .modify-rate-button:hover {
-      background-color: #e0a800;
+    button:active {
+      box-shadow: inset 2px 2px gray, inset -2px -2px white;
     }
     .result, .payment-plan {
-      background: #f4f4f9;
-      padding: 15px;
-      border: 1px solid #ddd;
-      border-radius: 5px;
       margin-top: 10px;
-    }
-    .result p, .payment-plan p {
-      margin: 10px 0;
-      font-size: 14px;
-      color: #333;
-    }
-    .result span, .payment-plan span {
-      font-weight: bold;
-      color: #007BFF;
+      background: white;
+      padding: 5px;
+      border: 2px solid black;
+      box-shadow: inset -2px -2px gray, inset 2px 2px white;
     }
     table {
       width: 100%;
@@ -101,72 +94,73 @@
       margin-top: 10px;
     }
     th, td {
-      border: 1px solid #ddd;
-      padding: 8px;
-      text-align: center;
+      border: 1px solid black;
+      padding: 5px;
       font-size: 12px;
+      text-align: center;
     }
     th {
-      background-color: #007BFF;
+      background: gray;
       color: white;
     }
   </style>
 </head>
 <body>
-  <div class="calculator-container">
-    <div class="logo">
-      <img src="logo.png" alt="Credipay Logo">
-      <h1>Calcula tu préstamo con Credipay</h1>
+  <div class="window">
+    <div class="window-title">
+      Calculadora de Préstamos
+      <button onclick="closeWindow()">X</button>
     </div>
-    <form id="loanForm">
-      <label for="amount">Monto Solicitado C$:</label>
-      <input type="number" id="amount" placeholder="Ingrese el monto" required>
+    <div class="content">
+      <form id="loanForm">
+        <label for="amount">Monto Solicitado C$:</label>
+        <input type="number" id="amount" placeholder="Ingrese el monto" required>
+        
+        <label for="rate">Interés Mensual (%):</label>
+        <input type="number" id="rate" value="15" disabled required>
+        <button type="button" onclick="enableRateInput()">Modificar Interés</button>
+        
+        <label for="term">Plazo (en meses):</label>
+        <input type="number" id="term" placeholder="Ingrese el plazo (ej: 3)" required>
+        
+        <label for="frequency">Frecuencia de Pago:</label>
+        <select id="frequency" required>
+          <option value="semanal">Semanal</option>
+          <option value="quincenal">Quincenal</option>
+          <option value="mensual">Mensual</option>
+        </select>
+        
+        <button type="button" onclick="calculateLoan()">Calcular</button>
+        <button type="button" onclick="generatePaymentPlan()">Generar Plan de Pagos</button>
+      </form>
       
-      <label for="rate">Interés Mensual (%):</label>
-      <input type="number" id="rate" value="15" disabled required>
-      <button type="button" class="modify-rate-button" onclick="enableRateInput()">Modificar Interés</button>
+      <div class="result" id="result" style="display: none;">
+        <p>Total de Cuotas (Semanas): <span id="totalWeeks"></span></p>
+        <p>Total a Pagar: <span id="totalPayment"></span></p>
+        <p>Cuota Semanal: <span id="weeklyPayment"></span></p>
+        <p>Cuota Quincenal: <span id="biweeklyPayment"></span></p>
+        <p>Cuota Mensual: <span id="monthlyPayment"></span></p>
+      </div>
       
-      <label for="term">Plazo (en meses):</label>
-      <input type="number" id="term" placeholder="Ingrese el plazo (ej: 3)" required>
-      
-      <label for="frequency">Frecuencia de Pago:</label>
-      <select id="frequency" required>
-        <option value="semanal">Semanal</option>
-        <option value="quincenal">Quincenal</option>
-        <option value="mensual">Mensual</option>
-      </select>
-      
-      <button type="button" onclick="calculateLoan()">Calcular</button>
-      <button type="button" onclick="generatePaymentPlan()">Generar Plan de Pagos</button>
-    </form>
-    
-    <div class="result" id="result" style="display: none;">
-      <p>Total de Cuotas (Semanas): <span id="totalWeeks"></span></p>
-      <p>Total a Pagar: <span id="totalPayment"></span></p>
-      <p>Cuota Semanal: <span id="weeklyPayment"></span></p>
-      <p>Cuota Quincenal: <span id="biweeklyPayment"></span></p>
-      <p>Cuota Mensual: <span id="monthlyPayment"></span></p>
-    </div>
-    
-    <div class="payment-plan" id="paymentPlan" style="display: none;">
-      <h3>Plan de Pagos</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Fecha de Pago</th>
-            <th>Saldo Total</th>
-            <th>Cuota</th>
-            <th>Saldo Final</th>
-          </tr>
-        </thead>
-        <tbody id="paymentTable"></tbody>
-      </table>
-      <!-- Botón para descargar el PDF -->
-      <button type="button" onclick="downloadPDF()">Descargar PDF</button>
+      <div class="payment-plan" id="paymentPlan" style="display: none;">
+        <h3>Plan de Pagos</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Fecha de Pago</th>
+              <th>Saldo Total</th>
+              <th>Cuota</th>
+              <th>Saldo Final</th>
+            </tr>
+          </thead>
+          <tbody id="paymentTable"></tbody>
+        </table>
+        <button type="button" onclick="downloadPDF()">Descargar PDF</button>
+      </div>
     </div>
   </div>
-
+  
   <script>
     // Permite modificar el interés
     function enableRateInput() {
@@ -174,55 +168,55 @@
       rateInput.disabled = false;
       rateInput.focus();
     }
-
+    
     // Calcula el préstamo y muestra los resultados
     function calculateLoan() {
       const amount = parseFloat(document.getElementById("amount").value);
       const rate = parseFloat(document.getElementById("rate").value);
       const term = parseFloat(document.getElementById("term").value);
-
+      
       if (isNaN(amount) || isNaN(rate) || isNaN(term) || amount <= 0 || rate <= 0 || term <= 0) {
         alert("Por favor, ingrese valores válidos.");
         return;
       }
-
+      
       const totalWeeks = Math.ceil(term * 4);
       const totalInterestPercent = rate * term;
       const totalInterest = (amount * totalInterestPercent) / 100;
       const totalPayment = amount + totalInterest;
-
+      
       const weeklyPayment = totalPayment / totalWeeks;
       const biweeklyPayment = weeklyPayment * 2;
       const monthlyPayment = weeklyPayment * 4;
-
+      
       document.getElementById("totalWeeks").textContent = totalWeeks;
       document.getElementById("totalPayment").textContent = `$${totalPayment.toFixed(2)}`;
       document.getElementById("weeklyPayment").textContent = `$${weeklyPayment.toFixed(2)}`;
       document.getElementById("biweeklyPayment").textContent = `$${biweeklyPayment.toFixed(2)}`;
       document.getElementById("monthlyPayment").textContent = `$${monthlyPayment.toFixed(2)}`;
-
+      
       document.getElementById("result").style.display = "block";
     }
-
-    // Genera el plan de pagos y actualiza la tabla (lógica original)
+    
+    // Genera el plan de pagos y actualiza la tabla (con lógica original)
     function generatePaymentPlan() {
       const amount = parseFloat(document.getElementById("amount").value);
       const rate = parseFloat(document.getElementById("rate").value);
       const term = parseFloat(document.getElementById("term").value);
       const frequency = document.getElementById("frequency").value;
-
+      
       if (isNaN(amount) || isNaN(rate) || isNaN(term) || amount <= 0 || rate <= 0 || term <= 0) {
         alert("Por favor, ingrese valores válidos.");
         return;
       }
-
+      
       const totalInterestPercent = rate * term;
       const totalInterest = (amount * totalInterestPercent) / 100;
       const totalPayment = amount + totalInterest;
-
+      
       let paymentCount;
       let paymentInterval;
-
+      
       switch (frequency) {
         case "semanal":
           paymentCount = Math.ceil(term * 4);
@@ -237,18 +231,18 @@
           paymentInterval = 30;
           break;
       }
-
+      
       const paymentAmount = totalPayment / paymentCount;
       const tbody = document.getElementById("paymentTable");
       tbody.innerHTML = "";
-
+      
       let remainingBalance = totalPayment;
       let currentDate = new Date();
-
+      
       for (let i = 1; i <= paymentCount; i++) {
         const saldoFinal = remainingBalance - paymentAmount;
         currentDate.setDate(currentDate.getDate() + paymentInterval);
-
+        
         tbody.innerHTML += `
           <tr>
             <td>${i}</td>
@@ -258,14 +252,14 @@
             <td>$${saldoFinal.toFixed(2)}</td>
           </tr>
         `;
-
+        
         remainingBalance = saldoFinal;
       }
-
+      
       document.getElementById("paymentPlan").style.display = "block";
     }
-
-    // Función para generar el PDF con una imagen del plan de pagos usando html2canvas
+    
+    // Genera el PDF capturando el elemento "paymentPlan" como imagen
     function downloadPDF() {
       html2canvas(document.getElementById("paymentPlan")).then(canvas => {
         const imgData = canvas.toDataURL("image/png");
@@ -274,7 +268,7 @@
         const pdfWidth = pdf.internal.pageSize.getWidth();
         const pdfHeight = pdf.internal.pageSize.getHeight();
         
-        // Calculamos el alto de la imagen para mantener la proporción
+        // Calcula el alto para mantener la proporción
         const imgProps = pdf.getImageProperties(imgData);
         const imgWidth = pdfWidth;
         const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
@@ -282,6 +276,10 @@
         pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
         pdf.save("Plan_de_Pagos.pdf");
       });
+    }
+    
+    function closeWindow() {
+      document.querySelector(".window").style.display = "none";
     }
   </script>
 </body>
