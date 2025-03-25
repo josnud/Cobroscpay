@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calculadora de Préstamos - Credipay</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         body {
             font-family: "MS Sans Serif", sans-serif;
@@ -156,6 +157,7 @@
                     </thead>
                     <tbody id="paymentTable"></tbody>
                 </table>
+                <button onclick="downloadPDF()">Descargar PDF</button>
             </div>
         </div>
     </div>
@@ -165,77 +167,38 @@
             document.getElementById("rate").disabled = false;
         }
 
-        function calculateLoan() {
-            const amount = parseFloat(document.getElementById("amount").value);
-            const rate = parseFloat(document.getElementById("rate").value);
-            const term = parseFloat(document.getElementById("term").value);
-
-            if (isNaN(amount) || isNaN(rate) || isNaN(term) || amount <= 0 || rate <= 0 || term <= 0) {
-                alert("Por favor, ingrese valores válidos.");
-                return;
-            }
-
-            const totalInterest = (amount * rate * term) / 100;
-            const totalPayment = amount + totalInterest;
-            const weeklyPayment = totalPayment / (term * 4);
-            const biweeklyPayment = weeklyPayment * 2;
-            const monthlyPayment = weeklyPayment * 4;
-
-            document.getElementById("totalPayment").textContent = `C$ ${totalPayment.toFixed(2)}`;
-            document.getElementById("weeklyPayment").textContent = `C$ ${weeklyPayment.toFixed(2)}`;
-            document.getElementById("biweeklyPayment").textContent = `C$ ${biweeklyPayment.toFixed(2)}`;
-            document.getElementById("monthlyPayment").textContent = `C$ ${monthlyPayment.toFixed(2)}`;
-            document.getElementById("result").style.display = "block";
-        }
-
         function generatePaymentPlan() {
-            const amount = parseFloat(document.getElementById("amount").value);
-            const rate = parseFloat(document.getElementById("rate").value);
-            const term = parseFloat(document.getElementById("term").value);
-            const frequency = document.getElementById("frequency").value;
-
-            const totalInterest = (amount * rate * term) / 100;
-            const totalPayment = amount + totalInterest;
-
-            let payments;
-            let interval;
-
-            switch (frequency) {
-                case "semanal":
-                    payments = term * 4;
-                    interval = 7;
-                    break;
-                case "quincenal":
-                    payments = term * 2;
-                    interval = 14;
-                    break;
-                case "mensual":
-                    payments = term;
-                    interval = 30;
-                    break;
-            }
-
-            const paymentAmount = totalPayment / payments;
-            let balance = totalPayment;
-            let currentDate = new Date();
             const tbody = document.getElementById("paymentTable");
             tbody.innerHTML = "";
-
-            for (let i = 1; i <= payments; i++) {
-                balance -= paymentAmount;
-                currentDate.setDate(currentDate.getDate() + interval);
-                tbody.innerHTML += `
-                    <tr>
-                        <td>${i}</td>
-                        <td>${currentDate.toISOString().split("T")[0]}</td>
-                        <td>C$ ${balance.toFixed(2)}</td>
-                        <td>C$ ${paymentAmount.toFixed(2)}</td>
-                        <td>C$ ${balance.toFixed(2)}</td>
-                    </tr>
-                `;
-            }
-
             document.getElementById("paymentPlan").style.display = "block";
+        }
+
+        async function downloadPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            doc.setFont("courier");
+            doc.setFontSize(12);
+            doc.text("Plan de Pagos - Credipay", 10, 10);
+            doc.text("Monto: C$" + document.getElementById("amount").value, 10, 20);
+            doc.text("Interés Mensual: " + document.getElementById("rate").value + "%", 10, 30);
+            doc.text("Plazo: " + document.getElementById("term").value + " meses", 10, 40);
+            doc.text("Frecuencia: " + document.getElementById("frequency").value, 10, 50);
+
+            let y = 60;
+            doc.text("Cuotas", 10, y);
+            y += 10;
+
+            const table = document.querySelectorAll("#paymentTable tr");
+            table.forEach(row => {
+                const columns = row.querySelectorAll("td");
+                let textRow = "";
+                columns.forEach(col => textRow += col.innerText + "   ");
+                doc.text(textRow, 10, y);
+                y += 10;
+            });
+
+            doc.save("Plan_de_Pagos.pdf");
         }
 
         function closeWindow() {
