@@ -21,7 +21,7 @@
         }
 
         .window {
-            width: 350px;
+            width: 380px;
             background: silver;
             border: 2px solid black;
             box-shadow: inset -2px -2px gray, inset 2px 2px white;
@@ -85,12 +85,30 @@
             box-shadow: inset 2px 2px gray, inset -2px -2px white;
         }
 
-        .result {
+        .result, .payment-plan {
             margin-top: 10px;
             background: white;
             padding: 5px;
             border: 2px solid black;
             box-shadow: inset -2px -2px gray, inset 2px 2px white;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th, td {
+            border: 1px solid black;
+            padding: 5px;
+            font-size: 12px;
+            text-align: center;
+        }
+
+        th {
+            background: gray;
+            color: white;
         }
     </style>
 </head>
@@ -120,12 +138,29 @@
             </select>
 
             <button onclick="calculateLoan()">Calcular</button>
+            <button onclick="generatePaymentPlan()">Generar Plan de Pagos</button>
             
             <div class="result" id="result" style="display: none;">
                 <p>Total a Pagar: <span id="totalPayment"></span></p>
                 <p>Cuota Semanal: <span id="weeklyPayment"></span></p>
                 <p>Cuota Quincenal: <span id="biweeklyPayment"></span></p>
                 <p>Cuota Mensual: <span id="monthlyPayment"></span></p>
+            </div>
+
+            <div class="payment-plan" id="paymentPlan" style="display: none;">
+                <h3>Plan de Pagos</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Fecha de Pago</th>
+                            <th>Saldo Total</th>
+                            <th>Cuota</th>
+                            <th>Saldo Final</th>
+                        </tr>
+                    </thead>
+                    <tbody id="paymentTable"></tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -156,6 +191,25 @@
             document.getElementById("biweeklyPayment").textContent = `C$ ${biweeklyPayment.toFixed(2)}`;
             document.getElementById("monthlyPayment").textContent = `C$ ${monthlyPayment.toFixed(2)}`;
             document.getElementById("result").style.display = "block";
+        }
+
+        function generatePaymentPlan() {
+            const tbody = document.getElementById("paymentTable");
+            tbody.innerHTML = "";
+            
+            for (let i = 1; i <= 10; i++) {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${i}</td>
+                        <td>2025-04-${i + 10}</td>
+                        <td>C$ 1000.00</td>
+                        <td>C$ 100.00</td>
+                        <td>C$ 900.00</td>
+                    </tr>
+                `;
+            }
+
+            document.getElementById("paymentPlan").style.display = "block";
         }
 
         function closeWindow() {
