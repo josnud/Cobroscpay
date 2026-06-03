@@ -8,12 +8,12 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
     :root {
-      --primary-color: #0ea5e9;
-      --primary-hover: #0284c7;
-      --bg-color: #f0fdfa;
+      --primary-color: #1e3a8a; /* Azul Institucional Bancario */
+      --primary-hover: #172554;
+      --bg-color: #f8fafc;
       --card-bg: #ffffff;
-      --text-main: #1e293b;
-      --text-muted: #64748b;
+      --text-main: #0f172a;
+      --text-muted: #475569;
       --border-color: #cbd5e1;
     }
 
@@ -37,11 +37,11 @@
     .card {
       background: var(--card-bg);
       width: 100%;
-      max-width: 500px;
+      max-width: 600px;
       border-radius: 12px;
       box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
       overflow: hidden;
-      margin-top: 20px;
+      margin-top: 10px;
     }
 
     .card-header {
@@ -51,6 +51,7 @@
       text-align: center;
       font-size: 1.25rem;
       font-weight: 600;
+      letter-spacing: 0.5px;
     }
 
     .card-body {
@@ -89,7 +90,7 @@
     input:focus, select:focus {
       outline: none;
       border-color: var(--primary-color);
-      box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.2);
+      box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.15);
     }
 
     input:disabled {
@@ -161,49 +162,83 @@
       margin-top: 24px;
     }
 
-    .payment-plan h3 {
-      margin-bottom: 12px;
-      font-size: 1.1rem;
-      color: var(--text-main);
-      border-bottom: 2px solid var(--primary-color);
-      padding-bottom: 8px;
-      display: inline-block;
+    /* Estilos del contenedor PDF (Aspecto Bancario) */
+    .bank-pdf-container {
+      background: #ffffff;
+      padding: 25px;
+      border: 1px solid #e2e8f0;
+      border-radius: 4px;
+      color: #0f172a;
+    }
+
+    .bank-header {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #1e3a8a;
+    }
+
+    .bank-header td {
+      border: none;
+      padding: 5px 0;
+    }
+
+    .credit-summary-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+      background-color: #f8fafc;
+    }
+
+    .credit-summary-table td {
+      padding: 8px 12px;
+      border: 1px solid #e2e8f0;
+      font-size: 13px;
     }
 
     .table-container {
       overflow-x: auto;
     }
 
-    table {
+    .plan-table {
       width: 100%;
       border-collapse: collapse;
       margin-bottom: 16px;
-      font-size: 0.875rem;
+      font-size: 12px;
     }
 
-    th, td {
-      border-bottom: 1px solid var(--border-color);
-      padding: 12px 8px;
-      text-align: right;
-    }
-
-    th {
-      background-color: #f1f5f9;
-      color: var(--text-muted);
+    .plan-table th {
+      background-color: #1e3a8a;
+      color: #ffffff;
       font-weight: 600;
       text-align: right;
+      padding: 10px 6px;
+      border: 1px solid #1e3a8a;
     }
 
-    th:first-child, td:first-child {
+    .plan-table td {
+      border: 1px solid #e2e8f0;
+      padding: 10px 6px;
+      text-align: right;
+    }
+
+    .plan-table th:first-child, .plan-table td:first-child {
+      text-align: center;
+    }
+    .plan-table th:nth-child(2), .plan-table td:nth-child(2) {
       text-align: center;
     }
 
+    .plan-table tr:nth-child(even) {
+      background-color: #f8fafc;
+    }
+
     .btn-pdf {
-      background-color: #10b981;
+      background-color: #059669;
     }
 
     .btn-pdf:hover {
-      background-color: #059669;
+      background-color: #047857;
     }
   </style>
 </head>
@@ -243,7 +278,7 @@
         </div>
 
         <div class="form-group">
-          <label for="expenses">Gastos Varios:</label>
+          <label for="expenses">Gastos Varios (Seguro):</label>
           <select id="expenses">
             <option value="0">Ninguno (C$ 0)</option>
             <option value="100">SVD (C$ 100)</option>
@@ -251,86 +286,119 @@
         </div>
 
         <div class="input-row">
-          <button type="button" onclick="calculateLoan()">Calcular</button>
+          <button type="button" onclick="calculateLoan()">Calcular Cuotas</button>
           <button type="button" class="btn-secondary" onclick="generatePaymentPlan()">Plan de Pagos</button>
         </div>
       </form>
 
       <div class="result-box" id="result" style="display: none;">
-        <p>Total de Cuotas (Semanas): <span id="totalWeeks"></span></p>
-        <p>Monto de Gastos Varios: <span id="miscExpenses"></span></p>
+        <p>Total de Cuotas: <span id="totalWeeks"></span></p>
+        <p>Monto Seguro (SVD): <span id="miscExpenses"></span></p>
         <p>Total General a Pagar: <span id="totalPayment"></span></p>
         <hr style="margin: 10px 0; border: 0; border-top: 1px solid #cbd5e1;">
-        <p>Cuota Semanal: <span id="weeklyPayment"></span></p>
-        <p>Cuota Quincenal: <span id="biweeklyPayment"></span></p>
-        <p>Cuota Mensual: <span id="monthlyPayment"></span></p>
+        <p>Cuota de Seguro (por pago): <span id="svdPerInstallment"></span></p>
+        <p>Cuota Total Calculada: <span id="calculatedInstallment"></span></p>
       </div>
 
       <div class="payment-plan" id="paymentPlanContainer" style="display: none;">
-        <div id="paymentPlanExport">
-          <h3>Plan de Pagos</h3>
+        <div class="bank-pdf-container" id="paymentPlanExport">
+          
+          <table class="bank-header">
+            <tr>
+              <td style="text-align: left;">
+                <h2 style="color: #1e3a8a; margin: 0; font-size: 22px; font-weight: 700; letter-spacing: 0.5px;">CREDIPAY</h2>
+                <p style="margin: 2px 0 0 0; font-size: 11px; color: #475569; font-weight: 500;">Servicios Financieros S.A.</p>
+              </td>
+              <td style="text-align: right; vertical-align: bottom;">
+                <h4 style="margin: 0; color: #0f172a; font-size: 13px; font-weight: 600; letter-spacing: 0.5px;">TABLA DE AMORTIZACIÓN PRELIMINAR</h4>
+                <p style="margin: 2px 0 0 0; font-size: 10px; color: #64748b;" id="pdfDocDate"></p>
+              </td>
+            </tr>
+          </table>
+          
+          <h5 style="margin-bottom: 8px; font-size: 12px; color: #1e3a8a; font-weight: 600;">RESUMEN DEL CRÉDITO</h5>
+          <table class="credit-summary-table">
+            <tr>
+              <td style="width: 50%;"><strong>Monto Principal:</strong> <span id="lblMonto"></span></td>
+              <td style="width: 50%;"><strong>Frecuencia de Pago:</strong> <span id="lblFrecuencia"></span></td>
+            </tr>
+            <tr>
+              <td><strong>Tasa de Interés:</strong> <span id="lblTasa"></span></td>
+              <td><strong>Monto Total SVD (Seguro):</strong> <span id="lblSvd"></span></td>
+            </tr>
+            <tr>
+              <td><strong>Plazo Solicitado:</strong> <span id="lblPlazo"></span></td>
+              <td><strong>Total General a Pagar:</strong> <span id="lblTotal"></span></td>
+            </tr>
+          </table>
+
+          <h5 style="margin-bottom: 8px; font-size: 12px; color: #1e3a8a; font-weight: 600;">PROYECCIÓN DE PAGOS</h5>
           <div class="table-container">
-            <table>
+            <table class="plan-table">
               <thead>
                 <tr>
-                  <th>#</th>
-                  <th>Fecha</th>
-                  <th>Saldo Total</th>
-                  <th>Cuota</th>
+                  <th>N°</th>
+                  <th>Fecha de Pago</th>
+                  <th>Saldo Inicial</th>
+                  <th>Cuota Base</th>
+                  <th>SVD (Seguro)</th>
+                  <th>Cuota Total</th>
                   <th>Saldo Final</th>
                 </tr>
               </thead>
               <tbody id="paymentTable"></tbody>
             </table>
           </div>
+          
+          <p style="font-size: 9px; color: #64748b; text-align: justify; margin-top: 15px; line-height: 1.2;">
+            * NOTA: La presente tabla es una proyección informativa y preliminar de cuotas calculada de manera fija. Los valores reflejados incluyen principal, intereses devengados estipulados y gastos de seguro asignados (SVD).
+          </p>
         </div>
-        <button type="button" class="btn-pdf" onclick="downloadPDF()">Descargar PDF</button>
+        <button type="button" class="btn-pdf" onclick="downloadPDF()">Descargar PDF Oficial</button>
       </div>
     </div>
   </div>
 
   <script>
-    // Permite modificar el interés
     function enableRateInput() {
       const rateInput = document.getElementById("rate");
       rateInput.disabled = false;
       rateInput.focus();
     }
 
-    // Calcula el préstamo y muestra los resultados resumen
     function calculateLoan() {
       const amount = parseFloat(document.getElementById("amount").value);
       const rate = parseFloat(document.getElementById("rate").value);
       const term = parseFloat(document.getElementById("term").value);
+      const frequency = document.getElementById("frequency").value;
       const expenses = parseFloat(document.getElementById("expenses").value) || 0;
 
       if (isNaN(amount) || isNaN(rate) || isNaN(term) || amount <= 0 || rate <= 0 || term <= 0) {
-        alert("Por favor, ingresá valores válidos para el monto, interés y plazo.");
+        alert("Por favor, ingresá valores válidos.");
         return;
       }
 
-      const totalWeeks = Math.ceil(term * 4);
-      const totalInterestPercent = rate * term;
-      const totalInterest = (amount * totalInterestPercent) / 100;
-      
-      // Se suman los gastos varios al total
+      let paymentCount;
+      switch (frequency) {
+        case "semanal": paymentCount = Math.ceil(term * 4); break;
+        case "quincenal": paymentCount = Math.ceil(term * 2); break;
+        case "mensual": paymentCount = Math.ceil(term); break;
+      }
+
+      const totalInterest = (amount * (rate * term)) / 100;
       const totalPayment = amount + totalInterest + expenses;
+      const totalCuota = totalPayment / paymentCount;
+      const svdCuota = expenses / paymentCount;
 
-      const weeklyPayment = totalPayment / totalWeeks;
-      const biweeklyPayment = weeklyPayment * 2;
-      const monthlyPayment = weeklyPayment * 4;
-
-      document.getElementById("totalWeeks").textContent = totalWeeks;
+      document.getElementById("totalWeeks").textContent = `${paymentCount} cuotas (${frequency})`;
       document.getElementById("miscExpenses").textContent = `C$ ${expenses.toFixed(2)}`;
       document.getElementById("totalPayment").textContent = `C$ ${totalPayment.toFixed(2)}`;
-      document.getElementById("weeklyPayment").textContent = `C$ ${weeklyPayment.toFixed(2)}`;
-      document.getElementById("biweeklyPayment").textContent = `C$ ${biweeklyPayment.toFixed(2)}`;
-      document.getElementById("monthlyPayment").textContent = `C$ ${monthlyPayment.toFixed(2)}`;
+      document.getElementById("svdPerInstallment").textContent = `C$ ${svdCuota.toFixed(2)}`;
+      document.getElementById("calculatedInstallment").textContent = `C$ ${totalCuota.toFixed(2)}`;
 
       document.getElementById("result").style.display = "block";
     }
 
-    // Genera el plan de pagos y actualiza la tabla
     function generatePaymentPlan() {
       const amount = parseFloat(document.getElementById("amount").value);
       const rate = parseFloat(document.getElementById("rate").value);
@@ -339,36 +407,35 @@
       const expenses = parseFloat(document.getElementById("expenses").value) || 0;
 
       if (isNaN(amount) || isNaN(rate) || isNaN(term) || amount <= 0 || rate <= 0 || term <= 0) {
-        alert("Por favor, ingresá valores válidos antes de generar el plan.");
+        alert("Por favor, ingresá valores válidos primero.");
         return;
       }
 
-      const totalInterestPercent = rate * term;
-      const totalInterest = (amount * totalInterestPercent) / 100;
-      
-      // Se suman los gastos varios a la deuda total
-      const totalPayment = amount + totalInterest + expenses;
-
       let paymentCount;
       let paymentInterval;
-
       switch (frequency) {
-        case "semanal":
-          paymentCount = Math.ceil(term * 4);
-          paymentInterval = 7;
-          break;
-        case "quincenal":
-          paymentCount = Math.ceil(term * 2);
-          paymentInterval = 14;
-          break;
-        case "mensual":
-          paymentCount = Math.ceil(term);
-          paymentInterval = 30;
-          break;
+        case "semanal": paymentCount = Math.ceil(term * 4); paymentInterval = 7; break;
+        case "quincenal": paymentCount = Math.ceil(term * 2); paymentInterval = 14; break;
+        case "mensual": paymentCount = Math.ceil(term); paymentInterval = 30; break;
       }
 
-      // La cuota ya incluye el prorrateo de los gastos varios
-      const paymentAmount = totalPayment / paymentCount;
+      const totalInterest = (amount * (rate * term)) / 100;
+      const baseTotal = amount + totalInterest;
+      const totalPayment = baseTotal + expenses;
+
+      const baseCuota = baseTotal / paymentCount;
+      const svdCuota = expenses / paymentCount;
+      const totalCuota = totalPayment / paymentCount;
+
+      // Actualizar Metadatos del "Recibo/Banco"
+      document.getElementById("lblMonto").textContent = `C$ ${amount.toLocaleString('es-NI', {minimumFractionDigits: 2})}`;
+      document.getElementById("lblTasa").textContent = `${rate}% mensual`;
+      document.getElementById("lblPlazo").textContent = `${term} Meses / ${paymentCount} Pagos`;
+      document.getElementById("lblFrecuencia").textContent = frequency.toUpperCase();
+      document.getElementById("lblSvd").textContent = `C$ ${expenses.toFixed(2)}`;
+      document.getElementById("lblTotal").textContent = `C$ ${totalPayment.toLocaleString('es-NI', {minimumFractionDigits: 2})}`;
+      document.getElementById("pdfDocDate").textContent = `Emisión: ${new Date().toLocaleDateString('es-NI')}`;
+
       const tbody = document.getElementById("paymentTable");
       tbody.innerHTML = "";
 
@@ -376,18 +443,21 @@
       let currentDate = new Date();
 
       for (let i = 1; i <= paymentCount; i++) {
-        // Para evitar decimales infinitos que descuadren el último centavo
-        let currentPayment = paymentAmount;
+        let currentTotalCuota = totalCuota;
+        let currentBaseCuota = baseCuota;
+        let currentSvdCuota = svdCuota;
+
+        // Ajuste fino para la última cuota por redondeos
         if (i === paymentCount) {
-           currentPayment = remainingBalance; 
+          currentTotalCuota = remainingBalance;
+          currentBaseCuota = remainingBalance - currentSvdCuota;
+          if (currentBaseCuota < 0) currentBaseCuota = 0;
         }
-        
-        let saldoFinal = remainingBalance - currentPayment;
-        if (saldoFinal < 0.01) saldoFinal = 0; // Corrección de precisión
+
+        let saldoFinal = remainingBalance - currentTotalCuota;
+        if (saldoFinal < 0.01) saldoFinal = 0;
 
         currentDate.setDate(currentDate.getDate() + paymentInterval);
-
-        // Formateando fecha a DD/MM/YYYY local
         const dateStr = currentDate.toLocaleDateString('es-NI');
 
         tbody.innerHTML += `
@@ -395,7 +465,9 @@
             <td>${i}</td>
             <td>${dateStr}</td>
             <td>C$ ${remainingBalance.toFixed(2)}</td>
-            <td>C$ ${currentPayment.toFixed(2)}</td>
+            <td>C$ ${currentBaseCuota.toFixed(2)}</td>
+            <td>C$ ${currentSvdCuota.toFixed(2)}</td>
+            <td style="font-weight: 600; color: #1e3a8a;">C$ ${currentTotalCuota.toFixed(2)}</td>
             <td>C$ ${saldoFinal.toFixed(2)}</td>
           </tr>
         `;
@@ -403,27 +475,25 @@
         remainingBalance = saldoFinal;
       }
 
+      calculateLoan();
       document.getElementById("paymentPlanContainer").style.display = "block";
     }
 
-    // Genera el PDF capturando el contenedor del plan de pagos
     function downloadPDF() {
       const elementToCapture = document.getElementById("paymentPlanExport");
       
-      html2canvas(elementToCapture, { scale: 2 }).then(canvas => {
+      html2canvas(elementToCapture, { scale: 2, useCORS: true }).then(canvas => {
         const imgData = canvas.toDataURL("image/png");
         const { jsPDF } = window.jspdf;
         const pdf = new jsPDF('p', 'mm', 'a4');
         const pdfWidth = pdf.internal.pageSize.getWidth();
         
-        // Agregar un pequeño margen
-        const margin = 10; 
+        const margin = 12; 
         const printWidth = pdfWidth - (margin * 2);
 
         const imgProps = pdf.getImageProperties(imgData);
         const imgHeight = (imgProps.height * printWidth) / imgProps.width;
 
-        // Se dibuja la imagen en el PDF respetando el margen
         pdf.addImage(imgData, "PNG", margin, margin, printWidth, imgHeight);
         pdf.save("Plan_de_Pagos_Credipay.pdf");
       });
