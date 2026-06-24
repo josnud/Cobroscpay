@@ -3,152 +3,189 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Calculadora</title>
-  <!-- jsPDF para generar PDF -->
+  <title>Calculadora de Crédito Pro</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <!-- html2canvas para capturar el elemento como imagen -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
   <style>
     :root {
-      --primary-color: #1e3a8a;
-      --primary-hover: #172554;
-      --bg-color: #f8fafc;
-      --card-bg: #ffffff;
-      --text-main: #0f172a;
-      --text-muted: #475569;
-      --border-color: #cbd5e1;
+      --primary: #4f46e5;      /* Indigo 600 */
+      --primary-hover: #4338ca; /* Indigo 700 */
+      --secondary: #f1f5f9;    /* Slate 100 */
+      --secondary-hover: #e2e8f0; /* Slate 200 */
+      --success: #059669;      /* Emerald 600 */
+      --success-hover: #047857; /* Emerald 700 */
+      --text-main: #0f172a;    /* Slate 900 */
+      --text-muted: #64748b;   /* Slate 500 */
+      --border: #e2e8f0;       /* Slate 200 */
+      --bg-body: #f8fafc;      /* Slate 50 */
+      --bg-card: #ffffff;
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
+      font-family: 'Inter', sans-serif;
     }
 
     body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background-color: var(--bg-color);
+      background: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%);
       color: var(--text-main);
       display: flex;
       justify-content: center;
       align-items: flex-start;
       min-height: 100vh;
-      padding: 20px;
+      padding: 30px 20px;
     }
 
+    /* Tarjeta Principal */
     .card {
-      background: var(--card-bg);
+      background: var(--bg-card);
       width: 100%;
-      max-width: 600px;
-      border-radius: 12px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+      max-width: 650px;
+      border-radius: 16px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0,0,0,0.05);
       overflow: hidden;
-      margin-top: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.5);
     }
 
     .card-header {
-      background: var(--primary-color);
+      background: linear-gradient(90deg, var(--primary), #3b82f6);
       color: white;
-      padding: 20px;
+      padding: 24px;
       text-align: center;
-      font-size: 1.25rem;
-      font-weight: 600;
-      letter-spacing: 0.5px;
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
     }
 
     .card-body {
-      padding: 24px;
+      padding: 32px 28px;
+    }
+
+    /* Formularios */
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
     }
 
     .form-group {
-      margin-bottom: 16px;
+      margin-bottom: 20px;
+    }
+
+    .form-group.full-width {
+      grid-column: span 2;
     }
 
     .input-row {
       display: flex;
-      gap: 10px;
-      align-items: flex-end;
+      gap: 12px;
+      align-items: center;
     }
 
     label {
       display: block;
       font-size: 0.875rem;
-      font-weight: 500;
-      margin-bottom: 6px;
+      font-weight: 600;
+      margin-bottom: 8px;
       color: var(--text-main);
     }
 
     input, select {
       width: 100%;
-      padding: 10px 12px;
+      padding: 12px 16px;
       font-size: 1rem;
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      background-color: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background-color: #fafafa;
       color: var(--text-main);
-      transition: border-color 0.3s, box-shadow 0.3s;
+      transition: all 0.2s ease;
     }
 
     input:focus, select:focus {
       outline: none;
-      border-color: var(--primary-color);
-      box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.15);
+      border-color: var(--primary);
+      background-color: #fff;
+      box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.15);
     }
 
     input:disabled {
-      background-color: #e2e8f0;
+      background-color: #f1f5f9;
+      color: var(--text-muted);
       cursor: not-allowed;
+      border-color: var(--border);
     }
 
+    /* Botones */
     button {
-      width: 100%;
-      padding: 12px;
+      padding: 14px 20px;
       font-size: 1rem;
       font-weight: 600;
       color: white;
-      background-color: var(--primary-color);
+      background-color: var(--primary);
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
       cursor: pointer;
-      transition: background-color 0.3s, transform 0.1s;
-      margin-top: 10px;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
     }
 
     button:hover {
       background-color: var(--primary-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
     }
 
     button:active {
-      transform: scale(0.98);
+      transform: translateY(0);
     }
 
     .btn-secondary {
-      background-color: #f1f5f9;
+      background-color: var(--secondary);
       color: var(--text-main);
-      border: 1px solid var(--border-color);
-      padding: 10px;
-      margin-top: 0;
-      width: auto;
-      white-space: nowrap;
+      box-shadow: none;
     }
 
     .btn-secondary:hover {
-      background-color: #e2e8f0;
+      background-color: var(--secondary-hover);
+      box-shadow: none;
     }
 
+    .btn-pdf {
+      background-color: var(--success);
+      margin-top: 16px;
+    }
+
+    .btn-pdf:hover {
+      background-color: var(--success-hover);
+      box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);
+    }
+
+    /* Cuadro de Resultados Rápidos */
     .result-box {
-      margin-top: 20px;
-      background-color: #f8fafc;
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 16px;
+      margin-top: 28px;
+      background: linear-gradient(to right bottom, #ffffff, #f8fafc);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
     }
 
     .result-box p {
       display: flex;
       justify-content: space-between;
-      margin-bottom: 8px;
+      margin-bottom: 12px;
       font-size: 0.95rem;
+      color: var(--text-muted);
     }
 
     .result-box p:last-child {
@@ -156,45 +193,92 @@
     }
 
     .result-box span {
-      font-weight: 600;
-      color: var(--primary-color);
+      font-weight: 700;
+      color: var(--text-main);
     }
 
+    .result-box .highlight span {
+      color: var(--primary);
+      font-size: 1.1rem;
+    }
+
+    hr {
+      margin: 16px 0;
+      border: 0;
+      border-top: 1px dashed var(--border);
+    }
+
+    /* Contenedor del Plan de Pagos (PDF) */
     .payment-plan {
-      margin-top: 24px;
+      margin-top: 32px;
+      animation: fadeIn 0.4s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .bank-pdf-container {
       background: #ffffff;
-      padding: 25px;
-      border: 1px solid #e2e8f0;
-      border-radius: 4px;
+      padding: 30px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
       color: #0f172a;
+      position: relative;
     }
 
+    /* Encabezado PDF */
     .bank-header {
       width: 100%;
       border-collapse: collapse;
-      margin-bottom: 20px;
-      border-bottom: 2px solid #1e3a8a;
+      margin-bottom: 24px;
+      border-bottom: 3px solid var(--primary);
+      padding-bottom: 10px;
     }
 
     .bank-header td {
       border: none;
-      padding: 5px 0;
+      padding: 0;
+    }
+
+    .logo-text {
+      color: var(--primary);
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin: 0;
+    }
+
+    /* Tablas PDF */
+    .section-title {
+      margin-bottom: 10px;
+      font-size: 13px;
+      color: var(--text-muted);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
     .credit-summary-table {
       width: 100%;
       border-collapse: collapse;
-      margin-bottom: 20px;
+      margin-bottom: 28px;
       background-color: #f8fafc;
+      border-radius: 6px;
+      overflow: hidden;
     }
 
     .credit-summary-table td {
-      padding: 8px 12px;
-      border: 1px solid #e2e8f0;
+      padding: 10px 14px;
+      border: 1px solid var(--border);
       font-size: 13px;
+    }
+
+    .credit-summary-table td strong {
+      color: var(--text-muted);
+      font-weight: 600;
+      margin-right: 8px;
     }
 
     .table-container {
@@ -205,27 +289,26 @@
       width: 100%;
       border-collapse: collapse;
       margin-bottom: 16px;
-      font-size: 12px;
+      font-size: 12.5px;
     }
 
     .plan-table th {
-      background-color: #1e3a8a;
+      background-color: var(--primary);
       color: #ffffff;
       font-weight: 600;
       text-align: right;
-      padding: 10px 6px;
-      border: 1px solid #1e3a8a;
+      padding: 12px 10px;
+      border: 1px solid var(--primary);
     }
 
     .plan-table td {
-      border: 1px solid #e2e8f0;
-      padding: 10px 6px;
+      border: 1px solid var(--border);
+      padding: 12px 10px;
       text-align: right;
+      color: #334155;
     }
 
-    .plan-table th:first-child, .plan-table td:first-child {
-      text-align: center;
-    }
+    .plan-table th:first-child, .plan-table td:first-child,
     .plan-table th:nth-child(2), .plan-table td:nth-child(2) {
       text-align: center;
     }
@@ -234,12 +317,33 @@
       background-color: #f8fafc;
     }
 
-    .btn-pdf {
-      background-color: #059669;
+    .plan-table tr:hover {
+      background-color: #f1f5f9;
     }
 
-    .btn-pdf:hover {
-      background-color: #047857;
+    .plan-table td.total-col {
+      font-weight: 700;
+      color: var(--primary);
+      background-color: rgba(79, 70, 229, 0.03);
+    }
+
+    .pdf-footer {
+      font-size: 10px;
+      color: var(--text-muted);
+      text-align: justify;
+      margin-top: 20px;
+      line-height: 1.5;
+      padding-top: 15px;
+      border-top: 1px solid var(--border);
+    }
+
+    /* Responsividad */
+    @media (max-width: 600px) {
+      .form-row { grid-template-columns: 1fr; gap: 0; }
+      .form-group.full-width { grid-column: span 1; }
+      .input-row { flex-direction: column; }
+      .input-row button { width: 100%; margin-top: 8px; }
+      .card-body { padding: 20px; }
     }
   </style>
 </head>
@@ -247,107 +351,107 @@
 
   <div class="card">
     <div class="card-header">
-      Calculadora
+      Calculadora de Crédito
     </div>
     <div class="card-body">
       <form id="loanForm">
-        <div class="form-group">
-          <label for="amount">Monto(C$):</label>
-          <input type="number" id="amount" placeholder="Ej: 5000" required>
-        </div>
-
-        <div class="form-group">
-          <label for="rate">Interés Mensual (%):</label>
-          <div class="input-row">
-            <input type="number" id="rate" value="15" disabled required>
-            <button type="button" class="btn-secondary" onclick="enableRateInput()">Editar</button>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="amount">Monto Solicitado (C$)</label>
+            <input type="number" id="amount" placeholder="Ej: 5000" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="term">Plazo (en meses)</label>
+            <input type="number" id="term" placeholder="Ej: 3" required>
           </div>
         </div>
 
-        <div class="form-group">
-          <label for="term">Plazo (en meses):</label>
-          <input type="number" id="term" placeholder="Ej: 3" required>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="rate">Interés Mensual (%)</label>
+            <div class="input-row" style="flex-direction: row;">
+              <input type="number" id="rate" value="15" disabled required>
+              <button type="button" class="btn-secondary" style="width: auto; margin:0;" onclick="enableRateInput()">Editar</button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="frequency">Frecuencia de Pago</label>
+            <select id="frequency" required>
+              <option value="semanal">Semanal</option>
+              <option value="quincenal">Quincenal</option>
+              <option value="mensual">Mensual</option>
+            </select>
+          </div>
         </div>
 
-        <div class="form-group">
-          <label for="frequency">Frecuencia de Pago:</label>
-          <select id="frequency" required>
-            <option value="semanal">Semanal</option>
-            <option value="quincenal">Quincenal</option>
-            <option value="mensual">Mensual</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label for="expenses">Gastos Varios:</label>
+        <div class="form-group full-width">
+          <label for="expenses">Cargos y Gastos Varios</label>
           <select id="expenses">
-            <option value="0">Ninguno (C$ 0)</option>
-            <option value="100">Otros (C$ 100)</option>
+            <option value="0">Ninguno (C$ 0.00)</option>
+            <option value="100">Cargos Administrativos (C$ 100.00)</option>
           </select>
         </div>
 
-        <div class="input-row">
+        <div class="input-row" style="margin-top: 24px; flex-direction: row;">
           <button type="button" onclick="calculateLoan()">Calcular Cuotas</button>
-          <button type="button" class="btn-secondary" onclick="generatePaymentPlan()">Plan de Pagos</button>
+          <button type="button" class="btn-secondary" onclick="generatePaymentPlan()">Ver Plan de Pagos</button>
         </div>
       </form>
 
-      <!-- Resumen en Pantalla -->
       <div class="result-box" id="result" style="display: none;">
-        <p>Total de Cuotas: <span id="totalWeeks"></span></p>
-        <p>Monto Otros: <span id="miscExpenses"></span></p>
+        <p>Plazo y Frecuencia: <span id="totalWeeks"></span></p>
+        <p>Cargos Adicionales: <span id="miscExpenses"></span></p>
         <p>Total General a Pagar: <span id="totalPayment"></span></p>
-        <hr style="margin: 10px 0; border: 0; border-top: 1px solid #cbd5e1;">
-        <p>Cuota de Otros (por pago): <span id="svdPerInstallment"></span></p>
-        <p>Cuota Total Calculada: <span id="calculatedInstallment"></span></p>
+        <hr>
+        <p>Cargos por cuota: <span id="svdPerInstallment"></span></p>
+        <p class="highlight">Cuota Total Asignada: <span id="calculatedInstallment"></span></p>
       </div>
 
-      <!-- Plan de Pagos Estilo Bancario para Exportar -->
       <div class="payment-plan" id="paymentPlanContainer" style="display: none;">
         <div class="bank-pdf-container" id="paymentPlanExport">
           
-          <!-- Encabezado del Banco -->
           <table class="bank-header">
             <tr>
-              <td style="text-align: left;">
-                <h2 style="color: #1e3a8a; margin: 0; font-size: 22px; font-weight: 700; letter-spacing: 0.5px;">Calculo</h2>
-                <p style="margin: 2px 0 0 0; font-size: 11px; color: #475569; font-weight: 500;"></p>
+              <td style="text-align: left; width: 60%;">
+                <h1 class="logo-text">CrediPay</h1>
+                <p style="margin: 4px 0 0 0; font-size: 12px; color: var(--text-muted);">Proyección Oficial de Crédito</p>
               </td>
               <td style="text-align: right; vertical-align: bottom;">
-                <h4 style="margin: 0; color: #0f172a; font-size: 13px; font-weight: 600; letter-spacing: 0.5px;">RESUMEN</h4>
-                <p style="margin: 2px 0 0 0; font-size: 10px; color: #64748b;" id="pdfDocDate"></p>
+                <h4 style="margin: 0; color: var(--text-main); font-size: 14px;">ESTADO DE CUENTA</h4>
+                <p style="margin: 4px 0 0 0; font-size: 11px; color: var(--text-muted);" id="pdfDocDate"></p>
               </td>
             </tr>
           </table>
           
-          <!-- Ficha Resumen del Crédito -->
-          <h5 style="margin-bottom: 8px; font-size: 12px; color: #1e3a8a; font-weight: 600;">RESUMEN DEL CRÉDITO</h5>
+          <div class="section-title">Resumen de Condiciones</div>
           <table class="credit-summary-table">
             <tr>
-              <td style="width: 50%;"><strong>Monto Principal:</strong> <span id="lblMonto"></span></td>
-              <td style="width: 50%;"><strong>Frecuencia de Pago:</strong> <span id="lblFrecuencia"></span></td>
+              <td style="width: 50%;"><strong>Principal:</strong> <span id="lblMonto"></span></td>
+              <td style="width: 50%;"><strong>Frecuencia:</strong> <span id="lblFrecuencia"></span></td>
             </tr>
             <tr>
-              <td><strong>Tasa de Interés:</strong> <span id="lblTasa"></span></td>
-              <td><strong>Monto Total Otros:</strong> <span id="lblSvd"></span></td>
+              <td><strong>Tasa Interés:</strong> <span id="lblTasa"></span></td>
+              <td><strong>Cargos Varios:</strong> <span id="lblSvd"></span></td>
             </tr>
             <tr>
-              <td><strong>Plazo Solicitado:</strong> <span id="lblPlazo"></span></td>
-              <td><strong>Total General a Pagar:</strong> <span id="lblTotal"></span></td>
+              <td><strong>Plazo:</strong> <span id="lblPlazo"></span></td>
+              <td><strong>Total a Pagar:</strong> <span id="lblTotal"></span></td>
             </tr>
           </table>
 
-          <!-- Tabla de Cuotas -->
-          <h5 style="margin-bottom: 8px; font-size: 12px; color: #1e3a8a; font-weight: 600;">PROYECCIÓN DE PAGOS</h5>
+          <div class="section-title">Tabla de Amortización</div>
           <div class="table-container">
             <table class="plan-table">
               <thead>
                 <tr>
                   <th>N°</th>
-                  <th>Fecha de Pago</th>
+                  <th>Fecha Pago</th>
                   <th>Saldo Inicial</th>
                   <th>Cuota Base</th>
-                  <th>Otros</th>
+                  <th>Cargos</th>
                   <th>Cuota Total</th>
                   <th>Saldo Final</th>
                 </tr>
@@ -356,11 +460,15 @@
             </table>
           </div>
           
-          <p style="font-size: 9px; color: #64748b; text-align: justify; margin-top: 15px; line-height: 1.2;">
-            * NOTA: La presente tabla es una proyección informativa y preliminar de cuotas calculada de manera fija. Los valores reflejados incluyen principal, intereses devengados estipulados y otros gastos asignados.
-          </p>
+          <div class="pdf-footer">
+            * AVISO LEGAL: La presente tabla es una proyección informativa preliminar calculada mediante el sistema de cuota fija. Los valores aquí reflejados incluyen el principal, los intereses devengados estipulados y otros cargos administrativos o de seguros asignados al crédito. Las fechas son estimadas.
+          </div>
         </div>
-        <button type="button" class="btn-pdf" onclick="downloadPDF()">Descargar PDF Oficial</button>
+        
+        <button type="button" class="btn-pdf" onclick="downloadPDF()">
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+          Descargar PDF Oficial
+        </button>
       </div>
     </div>
   </div>
@@ -439,7 +547,9 @@
       document.getElementById("lblFrecuencia").textContent = frequency.toUpperCase();
       document.getElementById("lblSvd").textContent = `C$ ${expenses.toFixed(2)}`;
       document.getElementById("lblTotal").textContent = `C$ ${totalPayment.toLocaleString('es-NI', {minimumFractionDigits: 2})}`;
-      document.getElementById("pdfDocDate").textContent = `Emisión: ${new Date().toLocaleDateString('es-NI')}`;
+      
+      const options = { year: 'numeric', month: 'long', day: 'numeric' };
+      document.getElementById("pdfDocDate").textContent = `Emisión: ${new Date().toLocaleDateString('es-NI', options)}`;
 
       const tbody = document.getElementById("paymentTable");
       tbody.innerHTML = "";
@@ -468,11 +578,11 @@
           <tr>
             <td>${i}</td>
             <td>${dateStr}</td>
-            <td>C$ ${remainingBalance.toFixed(2)}</td>
-            <td>C$ ${currentBaseCuota.toFixed(2)}</td>
-            <td>C$ ${currentSvdCuota.toFixed(2)}</td>
-            <td style="font-weight: 600; color: #1e3a8a;">C$ ${currentTotalCuota.toFixed(2)}</td>
-            <td>C$ ${saldoFinal.toFixed(2)}</td>
+            <td>C$ ${remainingBalance.toLocaleString('es-NI', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+            <td>C$ ${currentBaseCuota.toLocaleString('es-NI', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+            <td>C$ ${currentSvdCuota.toLocaleString('es-NI', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+            <td class="total-col">C$ ${currentTotalCuota.toLocaleString('es-NI', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+            <td>C$ ${saldoFinal.toLocaleString('es-NI', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
           </tr>
         `;
 
@@ -485,12 +595,34 @@
 
     function downloadPDF() {
       const elementToCapture = document.getElementById("paymentPlanExport");
+      const tableContainer = elementToCapture.querySelector('.table-container');
       
-      html2canvas(elementToCapture, { scale: 2, useCORS: true }).then(canvas => {
+      // Guardar estilos originales
+      const originalWidth = elementToCapture.style.width;
+      const originalMaxWidth = elementToCapture.style.maxWidth;
+      const originalOverflow = tableContainer.style.overflowX;
+
+      // Aplicar estilos temporales para expandir la tabla al generar el PDF
+      elementToCapture.style.width = '800px'; 
+      elementToCapture.style.maxWidth = 'none';
+      tableContainer.style.overflowX = 'visible';
+
+      // Capturar
+      html2canvas(elementToCapture, { 
+        scale: 2, 
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        windowWidth: 850 
+      }).then(canvas => {
+        
+        // Restaurar estilos para que la web siga siendo responsive
+        elementToCapture.style.width = originalWidth;
+        elementToCapture.style.maxWidth = originalMaxWidth;
+        tableContainer.style.overflowX = originalOverflow;
+
         const imgData = canvas.toDataURL("image/png");
         const { jsPDF } = window.jspdf;
         
-        // Crear documento A4 en formato vertical
         const pdf = new jsPDF('p', 'mm', 'a4');
         const pdfWidth = pdf.internal.pageSize.getWidth();
         const pdfHeight = pdf.internal.pageSize.getHeight();
@@ -499,26 +631,23 @@
         const marginY = 12; 
         const printWidth = pdfWidth - (marginX * 2);
         
-        // Calcular la altura total de la imagen según la proporción
         const imgProps = pdf.getImageProperties(imgData);
         const imgTotalHeight = (imgProps.height * printWidth) / imgProps.width;
 
         let heightLeft = imgTotalHeight;
         let position = marginY;
 
-        // Añadir la primera página
         pdf.addImage(imgData, "PNG", marginX, position, printWidth, imgTotalHeight);
         heightLeft -= (pdfHeight - marginY * 2);
 
-        // Ciclo para crear nuevas páginas si el contenido excede la primera hoja
         while (heightLeft > 0) {
-          position = position - (pdfHeight - marginY * 2); // Desplazar la imagen hacia arriba
+          position = position - pdfHeight; 
           pdf.addPage();
           pdf.addImage(imgData, "PNG", marginX, position, printWidth, imgTotalHeight);
-          heightLeft -= (pdfHeight - marginY * 2);
+          heightLeft -= pdfHeight;
         }
 
-        pdf.save("Plan_de_Pagos_Credipay.pdf");
+        pdf.save("Estado_de_Cuenta_Credipay.pdf");
       });
     }
   </script>
